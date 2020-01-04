@@ -15,3 +15,7 @@ ws.on('message', function incoming(msg) {
   }
 });
 
+ws.on('close', () => {
+  console.log('connection closed by parter!');
+});
+
