@@ -1,0 +1,2 @@
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; script-src 'self' https://somedomain.com/ 'unsafe-inline' 'unsafe-eval';  media-src *">
+
