@@ -1,7 +1,9 @@
 const assert = require('assert');
+// const https = require('https');
 const WebSocket = require('ws');
  
-const wss = new WebSocket.Server({ port: 8080 });
+// const server = https.createServer() // for https
+const wss = new WebSocket.Server({port:8080});
 
 const MAX_NODES = 1000000;
 const BROKEN_CHECK_INTERVAL = 10000;
@@ -16,6 +18,7 @@ function heartbeat() {
 }
 
 wss.on('connection', function connection(ws, req) {
+  console.log('connection recieved!');
   ws.isAlive = true;
   ws.on('pong', heartbeat);
 
@@ -49,19 +52,21 @@ wss.on('connection', function connection(ws, req) {
     waitingQueue.push(ws);
   }
 
-  ws.on('message', function incoming(msgText) {
-    let other = matching.get(ws.id);
+  ws.on('message', function incoming(msg) {
+    console.log('message recieved!');
     let partner = matching.get(ws.id);
-    const msg = {
-      'event': 'message',
-      'text': msgText
+    if(!partner) {
+      console.log('when not connected to other user yet, but sent a message for random reason');
+      return;
     }
+
     partner.send(msg);
   });
 
   ws.on('close', () => {
     console.log(`disclosed ID : ${ws.id}`);
     const partner = matching.get(ws.id);
+    if(!partner) return; // when not connected to other user yet, and try to close connection
     if(partner.readyState === WebSocket.OPEN) {
       console.log(`also disclosed ID : ${partner.id}`);
       partner.terminate();
@@ -90,3 +95,5 @@ const interval = setInterval(function ping() {
     ws.ping(noop);
   });
 }, BROKEN_CHECK_INTERVAL);
+
+// server.listen(8080); // for https
