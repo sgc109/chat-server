@@ -27,8 +27,12 @@ wss.on('connection', function connection(ws, req) {
   ws.id = myId;
   ws.ip = req.connection.remoteAddress;
 
-  if(waitingQueue.length > 0) {
+  let isConnected = false;
+  while(waitingQueue.length > 0) {
     let partner = waitingQueue.shift();
+    if(partner.readyState !== WebSocket.OPEN) continue;
+    isConnected = true;
+
     assert(myId != partner.id);
     assert(myId)
     assert(partner && partner.id);
@@ -48,7 +52,8 @@ wss.on('connection', function connection(ws, req) {
     }
     ws.send(JSON.stringify(myMsg));
     partner.send(JSON.stringify(partnerMsg));
-  } else {
+  }
+  if(!isConnected) {
     waitingQueue.push(ws);
   }
 
